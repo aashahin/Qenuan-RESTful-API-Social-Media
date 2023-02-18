@@ -13,6 +13,13 @@ exports.createUserVaildator = [
     .withMessage("Last Name is required.")
     .isString()
     .withMessage("Please Enter Valid Name"),
+  check("username")
+    .notEmpty()
+    .withMessage("Username is required.")
+    .isSlug()
+    .withMessage("Please Enter Valid Username")
+    .isLowercase()
+    .withMessage("The Username Must be a small words"),
   check("email")
     .notEmpty()
     .withMessage("Email is required.")

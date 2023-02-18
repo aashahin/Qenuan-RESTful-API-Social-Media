@@ -51,6 +51,16 @@ exports.getAllUsers = asyncHandler(async (req, res) => {
 // Get User
 /*
  * METHOD GET
+ * Route  /api/v1/user/info
+ * Access Auth
+ * */
+exports.getUser = asyncHandler(async (req, res) => {
+  res?.json(req?.user);
+});
+
+// Get User By Id
+/*
+ * METHOD GET
  * Route  /api/v1/user/:id
  * Access Public
  * */
@@ -62,15 +72,36 @@ exports.getUserById = asyncHandler(async (req, res, next) => {
   res?.json(user);
 });
 
-// Get User
+// Update Profile
 /*
- * METHOD GET
- * Route  /api/v1/user/info
- * Access Auth
- * */
-exports.getUser = asyncHandler(async (req, res, next) => {
-  res?.json(res?.user);
-});
+* METHOD PATCH
+* Route  /api/v1/user/profile
+* Access Auth
+* */
+exports.updateProfile = asyncHandler(async (req,res,next)=>{
+  const user = await User.findByIdAndUpdate(req?.user.id,{
+    firstName: req?.body.firstName,
+    lastName: req?.body.lastName,
+    bio: req?.body.bio,
+    profilePhoto: req?.body.profilePhoto,
+  },{new: true})
+  res?.json({info: user});
+})
+
+// Change Password
+/*
+* METHOD PATCH
+* Route  /api/v1/user/change-password
+* Access Auth
+* */
+exports.changePassword = asyncHandler(async(req,res,next)=>{
+  const user = await User.findByIdAndUpdate(req?.user.id,{
+    password: await bcrypt.hash(req?.body.password,12),
+    passwordChangedAt: Date.now()
+  },{new: true});
+  const token = createToken(user._id);
+  res?.json({message : user.password, token})
+})
 
 // Delete User
 /*
@@ -79,9 +110,31 @@ exports.getUser = asyncHandler(async (req, res, next) => {
  * Access Auth
  * */
 exports.deleteUser = asyncHandler(async (req, res, next) => {
-  await User.findByIdAndDelete(res?.user.id);
+  await User.findByIdAndDelete(req?.user.id);
   res?.json({ message: "done" });
 });
+
+// Admin
+
+// Update Profile
+/*
+* METHOD PATCH
+* Route  /api/v1/user/profile
+* Access Auth
+* */
+exports.updateUser = asyncHandler(async (req,res,next)=>{
+  const user = await User.findByIdAndUpdate(req?.params.id,{
+    "firstName": req?.body.firstName,
+    "lastName": req?.body.lastName,
+    "profilePhoto": req?.body.profilePhoto,
+    "email": req?.body.email,
+    "isBlocked": req?.body.isBlocked,
+    "role": req?.body.role,
+    "isAccountVerified": req?.body.isAccountVerified,
+    "active": req?.body.active,
+  },{new: true})
+  res?.json({info: user});
+})
 
 // Delete User By Id
 /*

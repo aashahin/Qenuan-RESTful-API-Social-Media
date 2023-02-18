@@ -11,7 +11,10 @@ const UserModel = new mongoose.Schema(
       type: String,
       required: [true, "Last Name is required."],
     },
-      username: String,
+   username: {
+       type: String,
+       required: [true, "Username is required."],
+   },
     profilePhoto: {
       type: String,
       default:
@@ -64,7 +67,7 @@ const UserModel = new mongoose.Schema(
     },
     accountVerificationToken: String,
     accountVerificationTokenExpire: Date,
-    passwordChangeAt: Date,
+    passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpire: Date,
     active: {
@@ -79,6 +82,7 @@ const UserModel = new mongoose.Schema(
   }
 );
 UserModel.pre("save", async function(next){
+    if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password,12)
     next()
 })

@@ -15,14 +15,23 @@ exports.auth = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler(`Access Denied!`, 404));
   }
   const decoded = jwt.verify(token, process.env.SECRET_KEY);
-  res.user = await User.findById(decoded.id).select("-password");
+
+  // Date Changed password
+  const user = await User.findById(decoded.id);
+  if (user.passwordChangedAt) {
+    const passChangeTimeStamp = Math.round(user.passwordChangedAt / 1000);
+    if (passChangeTimeStamp > decoded.iat) {
+      return next(new ErrorHandler("An error occurred, Please Re-login.", 401));
+    }
+  }
+  req.user = await User.findById(decoded.id).select("-password");
   next();
 });
 
 // Permissions
 exports.permissions = (roles) => {
   return asyncHandler(async (req, res, next) => {
-    if (!roles.includes(res?.user.role)) {
+    if (!roles.includes(req?.user.role)) {
       return next(new ErrorHandler(`Access Denied.`, 403));
     }
     next();
