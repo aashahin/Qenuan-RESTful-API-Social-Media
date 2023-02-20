@@ -78,7 +78,7 @@ exports.getUserById = asyncHandler(async (req, res, next) => {
 * Route  /api/v1/user/profile
 * Access Auth
 * */
-exports.updateProfile = asyncHandler(async (req,res,next)=>{
+exports.updateProfile = asyncHandler(async (req,res)=>{
   const user = await User.findByIdAndUpdate(req?.user.id,{
     firstName: req?.body.firstName,
     lastName: req?.body.lastName,
@@ -94,7 +94,7 @@ exports.updateProfile = asyncHandler(async (req,res,next)=>{
 * Route  /api/v1/user/change-password
 * Access Auth
 * */
-exports.changePassword = asyncHandler(async(req,res,next)=>{
+exports.changePassword = asyncHandler(async(req,res)=>{
   const user = await User.findByIdAndUpdate(req?.user.id,{
     password: await bcrypt.hash(req?.body.password,12),
     passwordChangedAt: Date.now()
@@ -109,10 +109,67 @@ exports.changePassword = asyncHandler(async(req,res,next)=>{
  * Route  /api/v1/user/
  * Access Auth
  * */
-exports.deleteUser = asyncHandler(async (req, res, next) => {
+exports.deleteUser = asyncHandler(async (req, res) => {
   await User.findByIdAndDelete(req?.user.id);
   res?.json({ message: "done" });
 });
+
+<!--End User Services-->
+
+// Following
+/*
+ * METHOD PUT
+ * Route  /api/v1/user/follow
+ * Access Auth
+ * */
+exports.followUsrServ = asyncHandler(async(req,res,next)=>{
+  const {followId} = req?.body
+  const {id} = req?.user
+
+  //0. Search on the target user and check if he is following him
+  const targetUser = await User.findById(followId);
+  const checkFollow = targetUser.followers.find((v)=> v.toString() === id);
+  if(checkFollow){
+    return next(new ErrorHandler(`You already follow this user`,403));
+  }
+
+  //1. Find the user you want to follow and update followers
+  await User.findByIdAndUpdate(followId, {
+    $push: { followers: id },
+    isFollowing: true
+  });
+
+  //2. Update the login user following field
+  await User.findByIdAndUpdate(id, {
+    $push: { following: followId },
+  });
+
+  res?.json("You have successfully followed this user");
+    })
+
+// UnFollowing
+/*
+ * METHOD PUT
+ * Route  /api/v1/user/unfollow
+ * Access Auth
+ * */
+exports.unFollowUsrServ = asyncHandler(async(req,res,next)=>{
+  const {unFollowId} = req?.body;
+  const {id} = req?.user
+
+  //1. Find the user you want to UnFollow and update followers
+  await User.findByIdAndUpdate(unFollowId, {
+    $pull: { followers: id },
+    isFollowing: false
+  });
+
+  //2. Update the login user following field
+  await User.findByIdAndUpdate(id, {
+    $pull: { following: unFollowId },
+  },{new: true});
+
+  res?.json("You have successfully unfollowed this user");
+})
 
 // Admin
 
@@ -122,7 +179,7 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
 * Route  /api/v1/user/profile
 * Access Auth
 * */
-exports.updateUser = asyncHandler(async (req,res,next)=>{
+exports.updateUser = asyncHandler(async (req,res)=>{
   const user = await User.findByIdAndUpdate(req?.params.id,{
     "firstName": req?.body.firstName,
     "lastName": req?.body.lastName,
