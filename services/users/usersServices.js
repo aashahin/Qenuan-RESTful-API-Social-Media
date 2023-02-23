@@ -137,12 +137,12 @@ exports.followUsrServ = asyncHandler(async(req,res,next)=>{
   await User.findByIdAndUpdate(followId, {
     $push: { followers: id },
     isFollowing: true
-  });
+  },{new: true});
 
   //2. Update the login user following field
   await User.findByIdAndUpdate(id, {
     $push: { following: followId },
-  });
+  },{new: true});
 
   res?.json("You have successfully followed this user");
     })
@@ -161,7 +161,7 @@ exports.unFollowUsrServ = asyncHandler(async(req,res,next)=>{
   await User.findByIdAndUpdate(unFollowId, {
     $pull: { followers: id },
     isFollowing: false
-  });
+  },{new: true});
 
   //2. Update the login user following field
   await User.findByIdAndUpdate(id, {
@@ -176,10 +176,10 @@ exports.unFollowUsrServ = asyncHandler(async(req,res,next)=>{
 // Update Profile
 /*
 * METHOD PATCH
-* Route  /api/v1/user/profile
+* Route  /api/v1/user/admin/profile
 * Access Auth
 * */
-exports.updateUser = asyncHandler(async (req,res)=>{
+exports.updateUser = asyncHandler(async (req,res,next)=>{
   const user = await User.findByIdAndUpdate(req?.params.id,{
     "firstName": req?.body.firstName,
     "lastName": req?.body.lastName,
@@ -190,13 +190,16 @@ exports.updateUser = asyncHandler(async (req,res)=>{
     "isAccountVerified": req?.body.isAccountVerified,
     "active": req?.body.active,
   },{new: true})
+  if (!user) {
+    return next(new ErrorHandler(`This Id is not valid`, 404));
+  }
   res?.json({info: user});
 })
 
-// Delete User By Id
+// Delete User
 /*
  * METHOD DELETE
- * Route  /api/v1/user/:id
+ * Route  /api/v1/user/admin/:id
  * Access Admin
  * */
 exports.deleteUserById = asyncHandler(async (req, res, next) => {
@@ -205,4 +208,24 @@ exports.deleteUserById = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler(`This Id is not valid`, 404));
   }
   res?.json({ message: "done" });
+});
+
+// Block User
+/*
+ * METHOD PATCH
+ * Route  /api/v1/user/admin/block/:id
+ * Access Admin
+ * */
+exports.blockUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req?.params.id);
+  if (!user) {
+    return next(new ErrorHandler(`This Id is not valid`, 404));
+  }
+  if(user.isBlocked){
+    user.isBlocked = false
+  }else{
+    user.isBlocked = true
+  }
+  user.save()
+  res?.json({ message: "done", status: user.isBlocked });
 });

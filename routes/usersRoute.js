@@ -10,7 +10,10 @@ const {
   deleteUserById,
   updateProfile,
   updateUser,
-  changePassword, followUsrServ, unFollowUsrServ,
+  changePassword,
+  followUsrServ,
+  unFollowUsrServ,
+  blockUser,
 } = require("../services/users/usersServices");
 const {
   createUserVaildator,
@@ -26,12 +29,13 @@ router
   .post("/login", loginUser)
   .patch("/profile", auth, updateProfile)
   .patch("/change-password", auth, changePassword)
-  .put("/follow", auth, followUsrServ)
-  .put("/unfollow", auth, unFollowUsrServ);
+  .patch("/follow", auth, followUsrServ)
+  .patch("/unfollow", auth, unFollowUsrServ);
 
 router
-    .route("/admin/:id")
-    .patch(auth, permissions(["admin"]), updateUser)
-    .delete(auth, permissions(["admin"]), deleteUserById)
-    .get(auth, permissions(["admin"]), getUserById);
+  .route("/admin/:id")
+  .patch(auth, permissions(["admin"]), updateUser)
+  .delete(auth, permissions(["admin"]), deleteUserById)
+  .get(auth, permissions(["admin"]), getUserById);
+router.patch("/admin/block/:id", auth, permissions(["admin"]), blockUser);
 module.exports = router;
