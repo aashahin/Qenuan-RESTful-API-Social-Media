@@ -19,7 +19,7 @@ if (process.env.NODE_MODE === "development") {
 }
 
 // Middleware
-app.use(compression())
+app.use(compression());
 
 app.use(express.json());
 

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
 // Schema
 const UserModel = new mongoose.Schema(
   {
@@ -11,10 +11,10 @@ const UserModel = new mongoose.Schema(
       type: String,
       required: [true, "Last Name is required."],
     },
-   username: {
-       type: String,
-       required: [true, "Username is required."],
-   },
+    username: {
+      type: String,
+      required: [true, "Username is required."],
+    },
     profilePhoto: {
       type: String,
       default:
@@ -65,8 +65,8 @@ const UserModel = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    accountVerificationToken: String,
-    accountVerificationTokenExpire: Date,
+    accountVerificationCode: String,
+    accountVerificationCodeExpire: Date,
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpire: Date,
@@ -81,9 +81,9 @@ const UserModel = new mongoose.Schema(
     timestamps: true,
   }
 );
-UserModel.pre("save", async function(next){
-    if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password,12)
-    next()
-})
+UserModel.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
 module.exports = mongoose.model("User", UserModel);

@@ -13,7 +13,7 @@ const {
   changePassword,
   followUsrServ,
   unFollowUsrServ,
-  blockUser,
+  blockUser, generateVerifyCode,
 } = require("../services/users/usersServices");
 const {
   createUserVaildator,
@@ -27,6 +27,7 @@ router
   .get("/info", auth, getUser)
   .post("/signup", createUserVaildator, createUser)
   .post("/login", loginUser)
+  .get("/generate-verify-code", auth, generateVerifyCode)
   .patch("/profile", auth, updateProfile)
   .patch("/change-password", auth, changePassword)
   .patch("/follow", auth, followUsrServ)
