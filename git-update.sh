@@ -7,4 +7,4 @@ echo "Entre Commit: "
 read commit
 git commit -m "$commit"
 #Push
-git push origin -u main $0="aashahin" $1="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"
+git push origin -u main $1="aashahin" $1="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"
