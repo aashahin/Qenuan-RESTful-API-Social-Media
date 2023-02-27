@@ -124,34 +124,38 @@ exports.deleteUser = asyncHandler(async (req, res) => {
   res?.json({ message: "done" });
 });
 
-// Generate Verify Code
+// Account Verify Code
 /*
- * METHOD POST
- * Route  /api/v1/user/generate-verify-code
+ * METHOD GET
+ * Route  /api/v1/user/account-verify-code
  * Access Auth
  * */
-exports.generateVerifyCode = asyncHandler(async (req, res, next) => {
+exports.accountVerifyCode = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req?.user.id);
+
+  if(user.isAccountVerified){
+    return next((new ErrorHandler(`This account is already verified`,401)))
+  }
   // Random Code Generation
   const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
   // Encrypt Verify Code
   user.accountVerificationCode = crypto
-      .createHash("sha1")
-      .update(verifyCode)
-      .digest("hex");
+    .createHash("sha1")
+    .update(verifyCode)
+    .digest("hex");
   // Expiration for Verify Code
   user.accountVerificationCodeExpire = Date.now() + 15 * 60 * 1000;
   await user.save();
   try {
     await sendEmail({
       email: user.email,
-      subject: "Your password reset code",
+      subject: "Your Verify code",
       message: templateMail(user.firstName, verifyCode),
     });
-  } catch (err){
+  } catch (err) {
     user.accountVerificationCode = undefined;
     user.accountVerificationCodeExpire = undefined;
-    await user.save()
+    await user.save();
     return next(
       new ErrorHandler("Failed in send, please retry in later time.", 500)
     );
@@ -160,6 +164,95 @@ exports.generateVerifyCode = asyncHandler(async (req, res, next) => {
     status: "Success",
   });
 });
+
+// Verify Account
+/*
+ * METHOD POST
+ * Route  /api/v1/user/verify-account
+ * Access Auth
+ * */
+exports.verifyAccount = asyncHandler(async (req, res, next) => {
+  const verifyCode = crypto
+    .createHash("sha1")
+    .update(req?.body.verifyCode)
+    .digest("hex");
+  const user = await User.findOne({
+    accountVerificationCode: verifyCode,
+    accountVerificationCodeExpire: { $gt: Date.now() },
+  });
+  if(!user){
+    return next(new ErrorHandler(`Invalid verify code or expired`,401))
+  }
+  user.isAccountVerified = true;
+  user.accountVerificationCode = null;
+  user.accountVerificationCodeExpire = null;
+  await user.save();
+  res?.json({status: "Successful"})
+});
+
+// Forget Password
+/*
+ * METHOD POST
+ * Route  /api/v1/user/forget-password
+ * Access Public
+ * */
+exports.forgetPassword = asyncHandler(async(req,res,next)=>{
+  const user = await User.findOne({email: req?.body.email})
+  if(!user){
+    return next(new ErrorHandler("This email is not exist"))
+  }
+  // Random Code Generation
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  // Encrypt Reset Code
+  user.passwordResetCode = crypto
+    .createHash("sha1")
+    .update(resetCode)
+    .digest("hex");
+  // Expiration for Reset Code
+  user.passwordResetExpire = Date.now() + 15 * 60 * 1000;
+  await user.save();
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your Reset code",
+      message: templateMail(user.firstName, resetCode),
+    });
+  } catch (err) {
+    user.passwordResetCode = undefined;
+    user.passwordResetExpire = undefined;
+    await user.save();
+    return next(
+      new ErrorHandler("Failed in send, please retry in later time.", 500)
+    );
+  }
+  res?.json({status: "Success"})
+})
+
+// Reset Password
+/*
+ * METHOD POST
+ * Route  /api/v1/user/reset-password
+ * Access Auth
+ * */
+exports.resetPassword = asyncHandler(async(req,res,next)=>{
+  const resetCode = crypto.createHash("sha1").update(req?.body.resetCode).digest("hex")
+  const user = await User.findOne({
+    passwordResetCode: resetCode,
+    passwordResetExpire: {$gt: Date.now()}
+  })
+  if(!user){
+    return next(new ErrorHandler("Invalid reset code or expired.",401))
+  }
+  if(await bcrypt.compare(req?.body.newPassword,user.password)){
+    return next(new ErrorHandler("This password has already been password",401))
+  }
+  user.password = req?.body.newPassword;
+  user.passwordResetExpire = null;
+  user.passwordResetCode = null;
+  user.passwordChangedAt = Date.now();
+  await user.save();
+  res?.json({message: "Success"})
+})
 
 // Following
 /*

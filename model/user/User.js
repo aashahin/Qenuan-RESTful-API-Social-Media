@@ -68,7 +68,7 @@ const UserModel = new mongoose.Schema(
     accountVerificationCode: String,
     accountVerificationCodeExpire: Date,
     passwordChangedAt: Date,
-    passwordResetToken: String,
+    passwordResetCode: String,
     passwordResetExpire: Date,
     active: {
       type: Boolean,

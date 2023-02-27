@@ -8,7 +8,6 @@ const express = require("express"),
 const { dbConnection } = require("./config/dbConnection");
 const routes = require("./routes");
 const { globalErrors } = require("./middlewares/Errors/globalErorr");
-const ErrorHandler = require("./middlewares/Errors/ErrorHandler");
 
 // DB
 dbConnection();
