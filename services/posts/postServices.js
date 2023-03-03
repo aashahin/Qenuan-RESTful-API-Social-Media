@@ -26,8 +26,6 @@ const disLikeInfo = {
   select: ["firstName", "lastName", "profilePhoto", "username"]
 }
 
-// Refactoring
-
 // Create Post
 /*
  * METHOD: POST
