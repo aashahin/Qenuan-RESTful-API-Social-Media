@@ -9,8 +9,8 @@ const filter = new Filter();
 exports.filtering = (req, next) => {
   const badWordsTitle = filter.isProfane(req?.body.title);
   const badWordsDesc = filter.isProfane(req?.body.description);
-  const badWordsCatg = filter.isProfane(req?.body.category);
-  if (badWordsTitle || badWordsDesc || badWordsCatg)
+  const badWordsHash = filter.isProfane(req?.body.hash);
+  if (badWordsTitle || badWordsDesc || badWordsHash)
     return next(new ErrorHandler("Fuck you!", 405));
 };
 // Upload photos to cloudinary

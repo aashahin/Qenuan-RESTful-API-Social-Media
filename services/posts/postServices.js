@@ -11,6 +11,7 @@ const {
   removePhotoCache,
 } = require("./RefactoringPost");
 const { postPhotoSanitize, postSanitize } = require("../../utils/sanitize");
+const { check } = require("../refactoring/refactoringServices");
 
 // Global Variables
 const infoUser = {
@@ -19,12 +20,12 @@ const infoUser = {
 };
 const likeInfo = {
   path: "likes",
-  select: ["firstName", "lastName", "profilePhoto", "username"]
-}
+  select: ["firstName", "lastName", "profilePhoto", "username"],
+};
 const disLikeInfo = {
   path: "disLikes",
-  select: ["firstName", "lastName", "profilePhoto", "username"]
-}
+  select: ["firstName", "lastName", "profilePhoto", "username"],
+};
 
 // Create Post
 /*
@@ -82,7 +83,10 @@ exports.getPost = asyncHandler(async (req, res, next) => {
       $inc: { numViews: 1 },
     },
     { new: true }
-  ).populate(infoUser).populate(likeInfo).populate(disLikeInfo);
+  )
+    .populate(infoUser)
+    .populate(likeInfo)
+    .populate(disLikeInfo);
   if (!post) return next(new ErrorHandler("Invalid id", 401));
   res?.json(post);
 });
@@ -94,7 +98,7 @@ exports.getPost = asyncHandler(async (req, res, next) => {
  * ACCESS: Auth
  * */
 exports.updatePost = asyncHandler(async (req, res, next) => {
-  const { title, description, category } = req?.body;
+  const { title, description, hash } = req?.body;
   const { id } = req?.params;
   filtering(req, next);
   const fetch = await Post.findById(id);
@@ -107,7 +111,7 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
       {
         title: title || fetch.title,
         description: description || fetch.description,
-        category: category || fetch.category,
+        hash: hash || fetch.hash,
         image: photo.url || fetch.image,
       },
       {
@@ -122,7 +126,7 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
       {
         title: title || fetch.title,
         description: description || fetch.description,
-        category: category || fetch.category,
+        hash: hash || fetch.hash,
       },
       {
         new: true,
@@ -252,4 +256,4 @@ exports.addDislike = asyncHandler(async (req, res, next) => {
     );
     res.json(disLike);
   }
-})
+});

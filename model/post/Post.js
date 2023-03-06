@@ -11,10 +11,10 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: [true, "Post Description is required"],
     },
-    category: {
+    hash: {
       type: String,
-      required: [true, "Post Category is required"],
-      default: "Uncategorized",
+      required: [true, "Hash is required"],
+      default: "UnHashed",
     },
     numViews: {
       type: Number,

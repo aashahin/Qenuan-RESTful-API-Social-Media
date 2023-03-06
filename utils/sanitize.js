@@ -37,21 +37,21 @@ exports.infoUser = (user) => {
 
 // Post sanitize
 exports.postPhotoSanitize = (req, photo) => {
-  const { title, description, category } = req?.body;
+  const { title, description, hash } = req?.body;
   return {
     title,
     description,
-    category,
+    hash,
     image: photo.url,
     user: req?.user.id,
   };
 };
 exports.postSanitize = (req) => {
-  const { title, description, category } = req?.body;
+  const { title, description, hash } = req?.body;
   return {
     title,
     description,
-    category,
+    hash,
     user: req?.user.id,
   };
 };
