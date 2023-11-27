@@ -135,17 +135,6 @@ Full tech stack [here](/techstack.md)
 |[sharp](https://www.npmjs.com/sharp)|v0.31.3|03/06/23|Abdelrahman Shaheen |Apache-2.0|[](https://github.com/advisories/GHSA-54xq-cgqr-rpm3) (High)|
 
 <br/>
-<div align='center'>
-
-Generated via [Stack File](https://github.com/marketplace/stack-file)
-
-# **Qenuan - RESTful Api for social media like twitter**
-
-## Tech Stack
-
-**Server:** Node, Express, MongoDB, Mongoose, JWT
-
-**Modules:** nodemailer, bcryptjs,express-validator,multer,sharp,helmet,hpp,compression,hpp,toobusy-js,xss-clean
 
 # API FEATURES
 
