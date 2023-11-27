@@ -25,14 +25,8 @@ Full tech stack [here](/techstack.md)
 
 &lt;--- Readme.md Snippet with images End ---&gt;
 -->
-<div align="center">
 
-# Tech Stack File
-![](https://img.stackshare.io/repo.svg "repo") [aashahin/Qenuan-RESTful-API-Social-Media](https://github.com/aashahin/Qenuan-RESTful-API-Social-Media)![](https://img.stackshare.io/public_badge.svg "public")
-<br/><br/>
-|18<br/>Tools used|11/27/23 <br/>Report generated|
-|------|------|
-</div>
+# Qenuan RESTFUL API - Social Media
 
 ## <img src='https://img.stackshare.io/languages.svg'/> Languages (1)
 <table><tr>
